@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Private Login</title>
+  <style>
+    body {
+      background-color: #0e0e10;
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    form {
+      background-color: #15151b;
+      padding: 40px 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(255, 20, 147, 0.2);
+      width: 90%;
+      max-width: 350px;
+      text-align: center;
+    }
+
+    .logo {
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(145deg, #ff5fa2, #ff7fc2);
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: 700;
+      font-size: 22px;
+      color: white;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 15px rgba(255, 105, 180, 0.4);
+    }
+
+    h2 {
+      margin-bottom: 10px;
+      color: #9fc4ff;
+      text-shadow: 0 0 10px rgba(159, 196, 255, 0.6);
+    }
+
+    p {
+      font-size: 12px;
+      color: #aaa;
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: #ccc;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: none;
+      border-radius: 8px;
+      background: #222;
+      color: #fff;
+      font-size: 14px;
+    }
+
+    input:focus {
+      outline: none;
+      box-shadow: 0 0 6px #ff69b4;
+    }
+
+    #login {
+      width: 100%;
+      background: linear-gradient(90deg, #ff5fa2, #ff7fc2);
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 0;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    #login:hover {
+      box-shadow: 0 0 12px rgba(255, 105, 180, 0.6);
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 480px) {
+      form {
+        padding: 25px 20px;
+        max-width: 300px;
+      }
+      .logo {
+        width: 60px;
+        height: 60px;
+        font-size: 20px;
+      }
+      h2 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <form action="/login" method="post">
+    <div class="logo">A.I</div>
+    <h2>Login</h2>
+    <p>keep it safe 💖</p>
+
+    <label for="username">Username:</label>
+    <input type="text" name="username" placeholder="Username" required>
+
+    <label for="password">Password:</label>
+    <input type="password" name="password" placeholder="Password" required>
+
+    <button type="submit" id="login">Login</button>
+  </form>
+</body>
+</html>

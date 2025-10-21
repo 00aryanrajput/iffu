@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Home — Iffat</title>
+
+  <style>
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top left, #1a1a1a, #000);
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #111;
+      padding: 15px 25px;
+      box-shadow: 0 0 10px #e22453;
+    }
+
+    header h2 { color: #ff5c8d; font-weight: 600; }
+
+    nav a {
+      text-decoration: none;
+      color: #fff;
+      margin-left: 15px;
+      background: #d62a55;
+      padding: 6px 14px;
+      border-radius: 20px;
+      transition: 0.3s;
+    }
+    nav a:hover { background: #ba2554; }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 20px;
+    }
+
+    .photo-wrapper {
+      position: relative;
+      width: 280px;
+      height: 280px;
+      overflow: hidden;
+      border-radius: 50%;
+      border: 4px solid #c41642;
+      box-shadow: 0 0 25px #c4123e;
+      transition: 0.4s ease;
+    }
+
+    .photo-wrapper:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 35px #c31348;
+    }
+
+    .photo-wrapper img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    audio {
+      margin-top: 15px;
+      width: 100%;
+      outline: rgb(133, 47, 76);
+    }
+
+    .feelings-section {
+      margin-top: 40px;
+      width: 90%;
+      max-width: 600px;
+    }
+
+    .feelings-section h3 {
+      color: #ff6b9a;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      background: #111;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px #ff4d79;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 100px;
+      background: #222;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      resize: none;
+    }
+
+    label {
+      margin-top: 15px;
+      color: #ffb3c6;
+    }
+
+    input[type="file"] {
+      background: #222;
+      color: #ccc;
+      padding: 6px;
+      border-radius: 6px;
+      width: 100%;
+      margin-top: 6px;
+    }
+
+    button {
+      margin-top: 15px;
+      background: #ff4d79;
+      border: none;
+      padding: 10px 0;
+      border-radius: 25px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover { background: #ff6b9a; }
+
+    @media (max-width: 600px) {
+      .photo-wrapper {
+        width: 200px;
+        height: 200px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h2>𝐈𝐟𝐟𝐮 ❤️</h2>
+    <nav>
+      <a href="/gallery">Gallery</a>
+      <a href="/logout">Logout</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="photo-wrapper">
+      <img src="/static/iffu.jpg" alt="Iffat">
+    </div>
+
+    <audio controls>
+      <source src="/static/Chahun Main Ya Naa Aashiqui 2 128 Kbps.mp3" type="audio/mpeg">
+    </audio>
+
+    <section class="feelings-section">
+      <h3>𝒟𝒾𝓁 𝒦𝒾 ℬ𝒶𝓉𝓉ℯ𝒾𝓃</h3>
+      <form method="POST" action="/upload" enctype="multipart/form-data">
+        <textarea name="feelingText" placeholder="Write your heart here..."></textarea>
+
+        <label>Attach Photo or Video:</label>
+        <input type="file" name="file" accept="image/*,video/*">
+
+        <button type="submit">Save Memory</button>
+      </form>
+    </section>
+  </main>
+
+</body>
+</html>
