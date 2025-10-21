@@ -104,3 +104,8 @@ xdg==5
 xkit==0.0.0
 yarl==1.7.2
 zipp==1.0.0
+Flask
+gunicorn
+psycopg2-binary
+Werkzeug
+
