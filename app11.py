@@ -15,11 +15,14 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # Database connection
 def get_db_connection():
     return mysql.connector.connect(
-        host="localhost",
-        user="root",          # apna MySQL username
-        password="Aryan@710", # apna MySQL password
-        database="iffu"
+        host=os.environ.get("MYSQLHOST"),
+        user=os.environ.get("MYSQLUSER"),
+        password=os.environ.get("MYSQLPASSWORD"),
+        database=os.environ.get("MYSQLDATABASE"),
+        port=os.environ.get("MYSQLPORT", 3306)
     )
+
+    
 
 # ---------- LOGIN ----------
 @app.route('/')
