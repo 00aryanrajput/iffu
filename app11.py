@@ -36,7 +36,7 @@ def get_db_connection():
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    return render_template('final_home.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
