@@ -13,18 +13,14 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Database connection
-import psycopg2
-import os
 
 def get_db_connection():
-    conn = psycopg2.connect(
-        host=os.environ.get("PGHOST"),
-        database=os.environ.get("PGDATABASE"),
-        user=os.environ.get("PGUSER"),
-        password=os.environ.get("PGPASSWORD"),
-        port=os.environ.get("PGPORT", 5432)
+    return mysql.connector.connect(
+        host="localhost",
+        user="root",          # apna MySQL username
+        password="Aryan@710", # apna MySQL password
+        database="iffu"
     )
-    return conn
 
 
     
