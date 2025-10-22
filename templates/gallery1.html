@@ -79,11 +79,13 @@
       border-radius:12px;
       box-shadow:0 0 15px #c20d3a;
       position:relative;
+      width: 95%;
+      max-width: 700px;
     }
 
     .gallery-item img,
     .gallery-item video {
-      max-width:90vw;
+      width: 100%;
       max-height:70vh;
       object-fit:contain;
       border-radius:12px;
@@ -113,7 +115,7 @@
 <body>
 
 <header>
-  <h2>💖</h2>
+  <h2>💖 Gallery</h2>
   <nav>
     <a href="/home">Home</a>
     <a href="/logout">Logout</a>
@@ -121,7 +123,6 @@
   </nav>
 </header>
 
-<!-- ✅ Moved form here -->
 <main id="galleryMain">
   <form method="POST" action="/delete" id="deleteForm">
     <div class="gallery-container">
@@ -129,11 +130,10 @@
       <div class="gallery-item">
         <input type="checkbox" class="checkbox" name="delete_ids" value="{{ file.id }}">
         {% if file.file_type == 'image' %}
-         <img src="{{ file.file_path }}" alt="Memory">
-
+          <!-- Cloudinary-ready image -->
+          <img src="{{ file.file_path }}" alt="Memory">
         {% elif file.file_type == 'video' %}
-         <video src="{{ file.file_path }}" controls></video>
-
+          <video src="{{ file.file_path }}" controls></video>
         {% endif %}
         <div class="text-content">{{ file.text_content }}</div>
       </div>
@@ -143,55 +143,38 @@
 </main>
 
 <script>
-  // Ensure header height is considered and main gets a fixed height for scrolling
   const header = document.querySelector('header');
   const main = document.getElementById('galleryMain');
   const deleteForm = document.getElementById('deleteForm');
 
   function updateMainHeight() {
-    // space for header (use offsetHeight) + small padding
     const headerH = header ? header.offsetHeight : 0;
-    // subtract from viewport height so main can scroll
     main.style.height = `calc(100vh - ${headerH}px - 10px)`;
     main.style.overflowY = 'auto';
   }
 
-  // initial setup
   updateMainHeight();
-
-  // recalc on resize (mobile rotate etc)
   window.addEventListener('resize', updateMainHeight);
 
-  // Auto-scroll variables
+  // Auto-scroll setup
   let autoScroll = true;
-  // pixels per second (makes it easier to tune)
-  let speedPPS = 40; // 40 px per second; lower = slower
+  let speedPPS = 40; 
   let lastTime = null;
 
-  // only auto-scroll if content overflows
   function canScroll() {
-    return main.scrollHeight > main.clientHeight + 1; // +1 tolerance
+    return main.scrollHeight > main.clientHeight + 1;
   }
 
   function autoScrollFrame(timestamp) {
-    try {
-      if (!lastTime) lastTime = timestamp;
-      const delta = (timestamp - lastTime) / 1000; // seconds since last frame
-      lastTime = timestamp;
+    if (!lastTime) lastTime = timestamp;
+    const delta = (timestamp - lastTime) / 1000;
+    lastTime = timestamp;
 
-      if (autoScroll && canScroll()) {
-        // amount to scroll in this frame
-        const move = speedPPS * delta;
-        main.scrollTop += move;
-
-        // if reached bottom, loop back to top smoothly
-        if (main.scrollTop + main.clientHeight >= main.scrollHeight - 1) {
-          // small timeout so user can see last image before jump
-          setTimeout(() => { main.scrollTop = 0; }, 300);
-        }
+    if (autoScroll && canScroll()) {
+      main.scrollTop += speedPPS * delta;
+      if (main.scrollTop + main.clientHeight >= main.scrollHeight - 1) {
+        setTimeout(() => { main.scrollTop = 0; }, 300);
       }
-    } catch (err) {
-      console.error('Auto-scroll error:', err);
     }
 
     requestAnimationFrame(autoScrollFrame);
@@ -199,7 +182,7 @@
 
   requestAnimationFrame(autoScrollFrame);
 
-  // Pause auto-scroll while user manually scrolls (and resume)
+  // Pause on manual scroll
   let manualScrollTimeout = null;
   main.addEventListener('wheel', () => {
     autoScroll = false;
@@ -207,34 +190,16 @@
     manualScrollTimeout = setTimeout(() => { autoScroll = true; }, 1000);
   }, { passive: true });
 
-  // also watch touch-events for mobile
-  main.addEventListener('touchstart', () => {
-    autoScroll = false;
-    clearTimeout(manualScrollTimeout);
-  }, { passive: true });
-  main.addEventListener('touchend', () => {
-    clearTimeout(manualScrollTimeout);
-    manualScrollTimeout = setTimeout(() => { autoScroll = true; }, 2000);
-  }, { passive: true });
+  main.addEventListener('touchstart', () => { autoScroll = false; clearTimeout(manualScrollTimeout); }, { passive: true });
+  main.addEventListener('touchend', () => { manualScrollTimeout = setTimeout(() => { autoScroll = true; }, 2000); }, { passive: true });
 
-  // helpful console info for debugging
-  console.log('Auto-scroll initialized. canScroll=', canScroll());
-
-  // expose a small helper to toggle / change speed from console if needed:
-  window.galleryAutoScroll = {
-    setSpeed(pxPerSec) { speedPPS = Number(pxPerSec) || speedPPS; console.log('speed set to', speedPPS); },
-    pause() { autoScroll = false; console.log('auto-scroll paused'); },
-    resume() { autoScroll = true; console.log('auto-scroll resumed'); },
-    status() { console.log({ autoScroll, speedPPS, canScroll: canScroll() }); }
-  };
-
-  // If you used a header 'Delete' button that calls submitDelete(), keep this:
+  // Delete form
   function submitDelete() {
     if (deleteForm) deleteForm.submit();
   }
   window.submitDelete = submitDelete;
-</script>
 
+</script>
 
 </body>
 </html>
