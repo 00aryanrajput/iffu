@@ -131,21 +131,17 @@
         <input type="checkbox" class="checkbox" name="delete_ids" value="{{ file.id }}">
         
         {% if file.file_type == 'image' %}
-          {% if 'http' in file.file_path %}
-            <!-- Cloudinary image -->
+          {% if file.file_path.startswith('http') %}
             <img src="{{ file.file_path }}" alt="Memory">
           {% else %}
-            <!-- Local image -->
-            <img src="{{ url_for('static', filename='uploads/' + file.file_path.split('/')[-1]) }}" alt="Memory">
+            <img src="{{ url_for('static', filename='uploads/' + file.file_path) }}" alt="Memory">
           {% endif %}
         
         {% elif file.file_type == 'video' %}
-          {% if 'http' in file.file_path %}
-            <!-- Cloudinary video -->
+          {% if file.file_path.startswith('http') %}
             <video src="{{ file.file_path }}" controls></video>
           {% else %}
-            <!-- Local video -->
-            <video src="{{ url_for('static', filename='uploads/' + file.file_path.split('/')[-1]) }}" controls></video>
+            <video src="{{ url_for('static', filename='uploads/' + file.file_path) }}" controls></video>
           {% endif %}
         {% endif %}
 
@@ -213,4 +209,5 @@
 
 </body>
 </html>
+
 
