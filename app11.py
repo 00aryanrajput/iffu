@@ -70,42 +70,40 @@ def upload():
     if 'username' not in session:
         return redirect(url_for('login'))
 
-    text = request.form.get('feelingText', '')
+    text_content = request.form.get('text_content', '')
     file = request.files.get('file')
 
-    if file and file.filename != '':
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
-        upload_result = cloudinary.uploader.upload(file_path, resource_type="auto")
-        os.remove(file_path)
+    if not file:
+        return "No file selected", 400
 
+    filename = secure_filename(file.filename)
+    file_type = 'image' if filename.lower().endswith(('png', 'jpg', 'jpeg', 'gif', 'webp')) else 'video'
 
-        try:
-            # Cloudinary upload
-            upload_result = cloudinary.uploader.upload(filepath, resource_type="auto")
-            cloudinary_url = upload_result['secure_url']
-        except Exception as e:
-            print("Cloudinary Upload Error:", e)
-            return "<h3>File upload failed. Check Cloudinary credentials or file type.</h3>"
+    # ✅ Create temporary path (Render pe static/uploads folder writable nahi hota)
+    temp_path = os.path.join('/tmp', filename)
+    file.save(temp_path)
 
-        # Determine file type
-        file_type = 'image' if filename.lower().endswith(('png','jpg','jpeg','gif')) else 'video'
+    try:
+        # ✅ Upload to Cloudinary directly from temporary path
+        upload_result = cloudinary.uploader.upload(temp_path, resource_type="auto")
+        os.remove(temp_path)
 
-        # Insert into DB
+        # ✅ Save only the Cloudinary URL in database
         conn = get_db_connection()
         cursor = conn.cursor()
-       cursor.execute("INSERT INTO gallery (text_content, file_path, file_type) VALUES (%s, %s, %s)",
-               (text_content, upload_result['secure_url'], file_type))
-
+        cursor.execute("""
+            INSERT INTO gallery (text_content, file_path, file_type)
+            VALUES (%s, %s, %s)
+        """, (text_content, upload_result['secure_url'], file_type))
         conn.commit()
         conn.close()
 
-        # Remove local file
-        if os.path.exists(filepath):
-            os.remove(filepath)
+        return redirect(url_for('gallery'))
 
-    return redirect(url_for('gallery'))
+    except Exception as e:
+        print("Upload failed:", e)
+        return f"Error: {e}", 500
+
 
 # ---------- GALLERY ----------
 @app.route('/gallery')
