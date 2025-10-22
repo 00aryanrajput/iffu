@@ -1,5 +1,3 @@
-# app11.py
-
 from flask import Flask, render_template, request, redirect, url_for, session
 import psycopg2
 import os
@@ -10,104 +8,64 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
-# Load .env
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "supersecret")
+app.secret_key = os.getenv('SECRET_KEY', 'default_secret_key')
 
-# Cloudinary config
+# Cloudinary Configuration
 cloudinary.config(
     cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
     api_key=os.getenv("CLOUDINARY_API_KEY"),
     api_secret=os.getenv("CLOUDINARY_API_SECRET")
 )
-print("Cloudinary keys:", 
-      os.getenv("CLOUDINARY_CLOUD_NAME"), 
-      os.getenv("CLOUDINARY_API_KEY"), 
-      os.getenv("CLOUDINARY_API_SECRET"))
 
-# Upload folder (temporary local save)
-UPLOAD_FOLDER = 'static/uploads'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# Upload folder
+UPLOAD_FOLDER = "uploads"
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-# ---------- DATABASE CONNECTION ----------
+# Database Connection
 def get_db_connection():
-    conn = psycopg2.connect(os.getenv("DATABASE_URL"))
+    conn = psycopg2.connect(os.getenv("DATABASE_URL"), sslmode="require")
     return conn
 
-# ---------- LOGIN ----------
+
+# -------------------- ROUTES -----------------------
+
 @app.route('/')
-def login():
-    return render_template('login.html')
-
-@app.route('/login', methods=['POST'])
-def do_login():
-    username = request.form['username']
-    password = request.form['password']
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE username=%s AND password=%s", (username, password))
-    user = cursor.fetchone()
-    conn.close()
-
-    if user:
-        session['username'] = username
-        return redirect(url_for('home'))
-    else:
-        return "<h3>Invalid username or password</h3><a href='/'>Try Again</a>"
-
-# ---------- HOME ----------
-@app.route('/home')
 def home():
-    if 'username' not in session:
-        return redirect(url_for('login'))
-    return render_template('final_home.html', username=session['username'])
+    return render_template('home.html')
 
-# ---------- UPLOAD ----------
-@app.route('/upload', methods=['POST'])
-def upload():
-    if 'username' not in session:
-        return redirect(url_for('login'))
 
-    text = request.form.get('feelingText', '')
-    file = request.files.get('file')
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
 
-    if file and file.filename != '':
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
-
-        try:
-            # Cloudinary upload
-            upload_result = cloudinary.uploader.upload(filepath, resource_type="auto")
-            cloudinary_url = upload_result['secure_url']
-        except Exception as e:
-            print("Cloudinary Upload Error:", e)
-            return "<h3>File upload failed. Check Cloudinary credentials or file type.</h3>"
-
-        # Determine file type
-        file_type = 'image' if filename.lower().endswith(('png','jpg','jpeg','gif')) else 'video'
-
-        # Insert into DB
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO gallery (text_content, file_path, file_type, upload_date) VALUES (%s, %s, %s, %s)",
-            (text, cloudinary_url, file_type, datetime.now())
-        )
-        conn.commit()
+        cursor.execute("SELECT * FROM users WHERE username=%s AND password=%s", (username, password))
+        user = cursor.fetchone()
         conn.close()
 
-        # Remove local file
-        if os.path.exists(filepath):
-            os.remove(filepath)
+        if user:
+            session['username'] = username
+            return redirect(url_for('gallery'))
+        else:
+            return "<h3>Invalid credentials. Please try again.</h3>"
 
-    return redirect(url_for('gallery'))
+    return render_template('login.html')
 
-# ---------- GALLERY ----------
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('login'))
+
+
 @app.route('/gallery')
 def gallery():
     if 'username' not in session:
@@ -131,41 +89,78 @@ def gallery():
 
     return render_template('gallery1.html', files=files)
 
-# ---------- DELETE ----------
+
+# -------------------- FIXED UPLOAD ROUTE -----------------------
+
+@app.route('/upload', methods=['POST'])
+def upload():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    text = request.form.get('feelingText', '')
+    file = request.files.get('file')
+
+    if file and file.filename != '':
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+
+        try:
+            # Detect resource type manually
+            file_ext = filename.split('.')[-1].lower()
+            if file_ext in ['jpg', 'jpeg', 'png', 'gif']:
+                resource_type = 'image'
+            elif file_ext in ['mp4', 'mov', 'avi', 'webm']:
+                resource_type = 'video'
+            else:
+                return "<h3>Unsupported file type!</h3>"
+
+            upload_result = cloudinary.uploader.upload(
+                filepath,
+                resource_type=resource_type
+            )
+            cloudinary_url = upload_result['secure_url']
+
+        except Exception as e:
+            print("Cloudinary Upload Error:", e)
+            return "<h3>File upload failed. Check Cloudinary credentials or file type.</h3>"
+
+        # Insert into DB
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO gallery (text_content, file_path, file_type, upload_date) VALUES (%s, %s, %s, %s)",
+            (text, cloudinary_url, resource_type, datetime.now())
+        )
+        conn.commit()
+        conn.close()
+
+        # Delete local temp file
+        if os.path.exists(filepath):
+            os.remove(filepath)
+
+    return redirect(url_for('gallery'))
+
+
 @app.route('/delete', methods=['POST'])
 def delete():
     if 'username' not in session:
         return redirect(url_for('login'))
 
-    ids_to_delete = request.form.getlist('delete_ids')
-    if ids_to_delete:
+    ids = request.form.getlist('selected_files')
+    if ids:
         conn = get_db_connection()
         cursor = conn.cursor()
-        for file_id in ids_to_delete:
-            cursor.execute("SELECT file_path FROM gallery WHERE id=%s", (file_id,))
-            file = cursor.fetchone()
-            if file:
-                # Delete from Cloudinary
-                public_id = file[0].split('/')[-1].split('.')[0]
-                try:
-                    cloudinary.uploader.destroy(public_id, resource_type="auto")
-                except Exception as e:
-                    print("Cloudinary Delete Error:", e)
-                # Delete from DB
-                cursor.execute("DELETE FROM gallery WHERE id=%s", (file_id,))
+        for file_id in ids:
+            cursor.execute("DELETE FROM gallery WHERE id=%s", (file_id,))
         conn.commit()
         conn.close()
 
     return redirect(url_for('gallery'))
 
-# ---------- LOGOUT ----------
-@app.route('/logout')
-def logout():
-    session.pop('username', None)
-    return redirect(url_for('login'))
 
-# ---------- RUN APP ----------
+# -------------------- MAIN -----------------------
+
 if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(debug=True)
+
