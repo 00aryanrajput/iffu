@@ -129,12 +129,26 @@
       {% for file in files %}
       <div class="gallery-item">
         <input type="checkbox" class="checkbox" name="delete_ids" value="{{ file.id }}">
+        
         {% if file.file_type == 'image' %}
-          <!-- Cloudinary-ready image -->
-          <img src="{{ file.file_path }}" alt="Memory">
+          {% if 'http' in file.file_path %}
+            <!-- Cloudinary image -->
+            <img src="{{ file.file_path }}" alt="Memory">
+          {% else %}
+            <!-- Local image -->
+            <img src="{{ url_for('static', filename='uploads/' + file.file_path.split('/')[-1]) }}" alt="Memory">
+          {% endif %}
+        
         {% elif file.file_type == 'video' %}
-          <video src="{{ file.file_path }}" controls></video>
+          {% if 'http' in file.file_path %}
+            <!-- Cloudinary video -->
+            <video src="{{ file.file_path }}" controls></video>
+          {% else %}
+            <!-- Local video -->
+            <video src="{{ url_for('static', filename='uploads/' + file.file_path.split('/')[-1]) }}" controls></video>
+          {% endif %}
         {% endif %}
+
         <div class="text-content">{{ file.text_content }}</div>
       </div>
       {% endfor %}
@@ -156,7 +170,6 @@
   updateMainHeight();
   window.addEventListener('resize', updateMainHeight);
 
-  // Auto-scroll setup
   let autoScroll = true;
   let speedPPS = 40; 
   let lastTime = null;
@@ -182,7 +195,6 @@
 
   requestAnimationFrame(autoScrollFrame);
 
-  // Pause on manual scroll
   let manualScrollTimeout = null;
   main.addEventListener('wheel', () => {
     autoScroll = false;
@@ -193,13 +205,12 @@
   main.addEventListener('touchstart', () => { autoScroll = false; clearTimeout(manualScrollTimeout); }, { passive: true });
   main.addEventListener('touchend', () => { manualScrollTimeout = setTimeout(() => { autoScroll = true; }, 2000); }, { passive: true });
 
-  // Delete form
   function submitDelete() {
     if (deleteForm) deleteForm.submit();
   }
   window.submitDelete = submitDelete;
-
 </script>
 
 </body>
 </html>
+
