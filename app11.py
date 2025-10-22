@@ -22,6 +22,10 @@ cloudinary.config(
     api_key=os.getenv("CLOUDINARY_API_KEY"),
     api_secret=os.getenv("CLOUDINARY_API_SECRET")
 )
+print("Cloudinary keys:", 
+      os.getenv("CLOUDINARY_CLOUD_NAME"), 
+      os.getenv("CLOUDINARY_API_KEY"), 
+      os.getenv("CLOUDINARY_API_SECRET"))
 
 # Upload folder (temporary local save)
 UPLOAD_FOLDER = 'static/uploads'
