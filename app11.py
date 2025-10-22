@@ -77,6 +77,9 @@ def upload():
         filename = secure_filename(file.filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
+        upload_result = cloudinary.uploader.upload(file_path, resource_type="auto")
+        os.remove(file_path)
+
 
         try:
             # Cloudinary upload
