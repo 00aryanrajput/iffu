@@ -1,3 +1,5 @@
+# app11.py
+
 from flask import Flask, render_template, request, redirect, url_for, session
 import psycopg2
 import os
@@ -67,21 +69,25 @@ def upload():
         return redirect(url_for('login'))
 
     text = request.form.get('feelingText', '')
-
     file = request.files.get('file')
+
     if file and file.filename != '':
         filename = secure_filename(file.filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
 
-        # Upload to Cloudinary
-        upload_result = cloudinary.uploader.upload(filepath, resource_type="auto")
-        cloudinary_url = upload_result['secure_url']
+        try:
+            # Cloudinary upload
+            upload_result = cloudinary.uploader.upload(filepath, resource_type="auto")
+            cloudinary_url = upload_result['secure_url']
+        except Exception as e:
+            print("Cloudinary Upload Error:", e)
+            return "<h3>File upload failed. Check Cloudinary credentials or file type.</h3>"
 
         # Determine file type
         file_type = 'image' if filename.lower().endswith(('png','jpg','jpeg','gif')) else 'video'
 
-        # Insert into database
+        # Insert into DB
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
@@ -139,8 +145,8 @@ def delete():
                 public_id = file[0].split('/')[-1].split('.')[0]
                 try:
                     cloudinary.uploader.destroy(public_id, resource_type="auto")
-                except:
-                    pass
+                except Exception as e:
+                    print("Cloudinary Delete Error:", e)
                 # Delete from DB
                 cursor.execute("DELETE FROM gallery WHERE id=%s", (file_id,))
         conn.commit()
