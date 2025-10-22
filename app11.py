@@ -95,10 +95,9 @@ def upload():
         # Insert into DB
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO gallery (text_content, file_path, file_type, upload_date) VALUES (%s, %s, %s, %s)",
-            (text, cloudinary_url, file_type, datetime.now())
-        )
+       cursor.execute("INSERT INTO gallery (text_content, file_path, file_type) VALUES (%s, %s, %s)",
+               (text_content, upload_result['secure_url'], file_type))
+
         conn.commit()
         conn.close()
 
