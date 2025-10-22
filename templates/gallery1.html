@@ -129,9 +129,11 @@
       <div class="gallery-item">
         <input type="checkbox" class="checkbox" name="delete_ids" value="{{ file.id }}">
         {% if file.file_type == 'image' %}
-          <img src="{{ url_for('static', filename='uploads/' + file.file_path) }}" alt="Memory">
+         <img src="{{ file.file_path }}" alt="Memory">
+
         {% elif file.file_type == 'video' %}
-          <video src="{{ url_for('static', filename='uploads/' + file.file_path) }}" controls></video>
+         <video src="{{ file.file_path }}" controls></video>
+
         {% endif %}
         <div class="text-content">{{ file.text_content }}</div>
       </div>
