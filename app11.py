@@ -1,12 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 import psycopg2
 import os
-from datetime import datetime
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 import cloudinary
 import cloudinary.uploader
-import cloudinary.api
 
 # Load .env
 load_dotenv()
@@ -79,31 +77,29 @@ def upload():
     filename = secure_filename(file.filename)
     file_type = 'image' if filename.lower().endswith(('png', 'jpg', 'jpeg', 'gif', 'webp')) else 'video'
 
-    # ✅ Create temporary path (Render pe static/uploads folder writable nahi hota)
+    # Temp path for Render
     temp_path = os.path.join('/tmp', filename)
     file.save(temp_path)
 
-    try:
-        # ✅ Upload to Cloudinary directly from temporary path
-        upload_result = cloudinary.uploader.upload(temp_path, resource_type="auto")
-        os.remove(temp_path)
+    # Upload to Cloudinary
+    if file_type == 'image':
+        upload_result = cloudinary.uploader.upload(temp_path, resource_type="image")
+    else:
+        upload_result = cloudinary.uploader.upload(temp_path, resource_type="video")
 
-        # ✅ Save only the Cloudinary URL in database
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO gallery (text_content, file_path, file_type)
-            VALUES (%s, %s, %s)
-        """, (text_content, upload_result['secure_url'], file_type))
-        conn.commit()
-        conn.close()
+    os.remove(temp_path)
 
-        return redirect(url_for('gallery'))
+    # Save URL in DB
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO gallery (text_content, file_path, file_type)
+        VALUES (%s, %s, %s)
+    """, (text_content, upload_result['secure_url'], file_type))
+    conn.commit()
+    conn.close()
 
-    except Exception as e:
-        print("Upload failed:", e)
-        return f"Error: {e}", 500
-
+    return redirect(url_for('gallery'))
 
 # ---------- GALLERY ----------
 @app.route('/gallery')
@@ -140,13 +136,14 @@ def delete():
         conn = get_db_connection()
         cursor = conn.cursor()
         for file_id in ids_to_delete:
-            cursor.execute("SELECT file_path FROM gallery WHERE id=%s", (file_id,))
+            cursor.execute("SELECT file_path, file_type FROM gallery WHERE id=%s", (file_id,))
             file = cursor.fetchone()
             if file:
                 # Delete from Cloudinary
                 public_id = file[0].split('/')[-1].split('.')[0]
+                resource_type = "image" if file[1] == 'image' else "video"
                 try:
-                    cloudinary.uploader.destroy(public_id, resource_type="auto")
+                    cloudinary.uploader.destroy(public_id, resource_type=resource_type)
                 except Exception as e:
                     print("Cloudinary Delete Error:", e)
                 # Delete from DB
