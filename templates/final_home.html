@@ -2,210 +2,238 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Gallery — Iffat</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Home — Iffat</title>
+
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif; }
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
 
     body {
-      background:#111;
-      color:#fff;
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
+      background: radial-gradient(circle at top left, #1a1a1a, #000);
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
     }
 
     header {
-      width:100%;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      background:#1a1a1a;
-      padding:15px 25px;
-      box-shadow:0 0 10px #e22453;
-      position:sticky;
-      top:0;
-      z-index:10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #111;
+      padding: 15px 25px;
+      box-shadow: 0 0 10px #e22453;
+      position: relative;
+      z-index: 10;
     }
 
-    header h2 { color:#cf1f54; }
+    header h2 { color: #ff5c8d; font-weight: 600; }
 
-    nav {
-      display:flex;
-      align-items:center;
-      gap:10px;
+    nav a {
+      text-decoration: none;
+      color: #fff;
+      margin-left: 15px;
+      background: #d62a55;
+      padding: 6px 14px;
+      border-radius: 20px;
+      transition: 0.3s;
     }
-
-    nav a, nav button {
-      text-decoration:none;
-      color:#fff;
-      background:#d62a55;
-      padding:6px 14px;
-      border-radius:20px;
-      transition:0.3s;
-      border:none;
-      cursor:pointer;
-      font-size:15px;
-    }
-
-    nav a:hover, nav button:hover { background:#ba2554; }
+    nav a:hover { background: #ba2554; }
 
     main {
-      flex:1;
-      width:100%;
-      display:flex;
-      justify-content:center;
-      overflow-y:auto;
-      padding:10px;
-      scroll-behavior:smooth;
-      height: calc(100vh - 80px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 20px;
+      position: relative;
+      z-index: 5;
     }
 
-    .gallery-container {
-      display:flex;
-      flex-direction:column;
-      gap:30px;
-      align-items:center;
-      max-height:80vh;
+    .photo-wrapper {
+      position: relative;
+      width: 280px;
+      height: 280px;
+      overflow: hidden;
+      border-radius: 50%;
+      border: 4px solid #c41642;
+      box-shadow: 0 0 25px #c4123e;
+      transition: 0.4s ease;
+      cursor: pointer;
     }
 
-    .gallery-item {
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      background:#222;
-      padding:15px;
-      border-radius:12px;
-      box-shadow:0 0 15px #c20d3a;
-      position:relative;
-      width: 95%;
-      max-width: 700px;
+    .photo-wrapper.enlarged {
+      transform: scale(1.05); /* smaller zoom now */
+      box-shadow: 0 0 40px #e02362;
+      z-index: 20;
     }
 
-    .gallery-item img,
-    .gallery-item video {
+    .photo-wrapper img {
       width: 100%;
-      max-height:70vh;
-      object-fit:contain;
-      border-radius:12px;
-      display:block;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
     }
 
-    .text-content {
-      margin-top:10px;
-      color:#ca355a;
-      text-align:center;
-      word-wrap:break-word;
+    audio {
+      margin-top: 15px;
+      width: 100%;
+      outline: rgb(133, 47, 76);
     }
 
-    .checkbox {
-      position:absolute;
-      top:10px;
-      left:10px;
-      transform:scale(1.3);
-      cursor:pointer;
+    .feelings-section {
+      margin-top: 40px;
+      width: 90%;
+      max-width: 600px;
     }
 
-    @media (max-width:600px) {
-      .gallery-item { font-size:0.9rem; }
+    .feelings-section h3 {
+      color: #ff6b9a;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      background: #111;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px #ff4d79;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 100px;
+      background: #222;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      resize: none;
+    }
+
+    label {
+      margin-top: 15px;
+      color: #ffb3c6;
+    }
+
+    input[type="file"] {
+      background: #222;
+      color: #ccc;
+      padding: 6px;
+      border-radius: 6px;
+      width: 100%;
+      margin-top: 6px;
+    }
+
+    button {
+      margin-top: 15px;
+      background: #ff4d79;
+      border: none;
+      padding: 10px 0;
+      border-radius: 25px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover { background: #ff6b9a; }
+
+    /* Heart animation */
+    .heart {
+      position: fixed;
+      color: #ff4d79;
+      font-size: 18px;
+      opacity: 0.6;
+      animation: floatUp 6s linear forwards;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(100vh) scale(0.8);
+        opacity: 0.7;
+      }
+      100% {
+        transform: translateY(-10vh) scale(1.4);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .photo-wrapper {
+        width: 200px;
+        height: 200px;
+      }
     }
   </style>
 </head>
 <body>
 
-<header>
-  <h2>💖 Gallery</h2>
-  <nav>
-    <a href="/home">Home</a>
-    <a href="/logout">Logout</a>
-    <button type="button" onclick="submitDelete()">Delete Selected</button>
-  </nav>
-</header>
+  <header>
+    <h2>𝐈𝐟𝐟𝐮 ❤️</h2>
+    <nav>
+      <a href="/gallery">Gallery</a>
+      <a href="/logout">Logout</a>
+    </nav>
+  </header>
 
-<main id="galleryMain">
-  <form method="POST" action="/delete" id="deleteForm">
-    <div class="gallery-container">
-      {% for file in files %}
-      <div class="gallery-item">
-        <input type="checkbox" class="checkbox" name="delete_ids" value="{{ file.id }}">
-        
-        {% if file.file_type == 'image' %}
-          {% if file.file_path.startswith('http') %}
-            <img src="{{ file.file_path }}" alt="Memory">
-          {% else %}
-            <img src="{{ url_for('static', filename='uploads/' + file.file_path) }}" alt="Memory">
-          {% endif %}
-        
-        {% elif file.file_type == 'video' %}
-          {% if file.file_path.startswith('http') %}
-            <video src="{{ file.file_path }}" controls></video>
-          {% else %}
-            <video src="{{ url_for('static', filename='uploads/' + file.file_path) }}" controls></video>
-          {% endif %}
-        {% endif %}
-
-        <div class="text-content">{{ file.text_content }}</div>
-      </div>
-      {% endfor %}
+  <main>
+    <div class="photo-wrapper" id="photo">
+      <img src="/static/jerry.jpeg" alt="Iffat">
     </div>
-  </form>
-</main>
 
-<script>
-  const header = document.querySelector('header');
-  const main = document.getElementById('galleryMain');
-  const deleteForm = document.getElementById('deleteForm');
+    <audio controls>
+      <source src="/static/hum_maar_jaynge.mp3" type="audio/mpeg">
+    </audio>
 
-  function updateMainHeight() {
-    const headerH = header ? header.offsetHeight : 0;
-    main.style.height = `calc(100vh - ${headerH}px - 10px)`;
-    main.style.overflowY = 'auto';
-  }
+    <section class="feelings-section">
+      <h3>𝒟𝒾𝓁 𝒦𝒾 ℬ𝒶𝓉𝓉ℯ𝒾𝓃</h3>
+      <form method="POST" action="/upload" enctype="multipart/form-data">
+        <textarea name="feelingText" placeholder="Write your heart here..."></textarea>
 
-  updateMainHeight();
-  window.addEventListener('resize', updateMainHeight);
+        <label>Attach Photo or Video:</label>
+        <input type="file" name="file" accept="image/*,video/*">
 
-  let autoScroll = true;
-  let speedPPS = 40; 
-  let lastTime = null;
+        <button type="submit">Save Memory</button>
+      </form>
+    </section>
+  </main>
 
-  function canScroll() {
-    return main.scrollHeight > main.clientHeight + 1;
-  }
+  <script>
+    const photo = document.getElementById("photo");
+    let heartsInterval;
 
-  function autoScrollFrame(timestamp) {
-    if (!lastTime) lastTime = timestamp;
-    const delta = (timestamp - lastTime) / 1000;
-    lastTime = timestamp;
+    photo.addEventListener("click", () => {
+      photo.classList.toggle("enlarged");
 
-    if (autoScroll && canScroll()) {
-      main.scrollTop += speedPPS * delta;
-      if (main.scrollTop + main.clientHeight >= main.scrollHeight - 1) {
-        setTimeout(() => { main.scrollTop = 0; }, 300);
+      if (photo.classList.contains("enlarged")) {
+        heartsInterval = setInterval(createHeart, 100); // faster hearts
+      } else {
+        clearInterval(heartsInterval);
       }
+    });
+
+    function createHeart() {
+      const heart = document.createElement("div");
+      heart.classList.add("heart");
+      heart.innerHTML = "❤️";
+      heart.style.left = Math.random() * 100 + "vw";
+      heart.style.top = Math.random() * 100 + "vh";  // appear anywhere on screen
+      heart.style.fontSize = 14 + Math.random() * 18 + "px";
+      heart.style.animationDuration = 4 + Math.random() * 3 + "s";
+      heart.style.opacity = 0.5 + Math.random() * 0.5;
+      document.body.appendChild(heart);
+
+      setTimeout(() => {
+        heart.remove();
+      }, 6000);
     }
-
-    requestAnimationFrame(autoScrollFrame);
-  }
-
-  requestAnimationFrame(autoScrollFrame);
-
-  let manualScrollTimeout = null;
-  main.addEventListener('wheel', () => {
-    autoScroll = false;
-    clearTimeout(manualScrollTimeout);
-    manualScrollTimeout = setTimeout(() => { autoScroll = true; }, 1000);
-  }, { passive: true });
-
-  main.addEventListener('touchstart', () => { autoScroll = false; clearTimeout(manualScrollTimeout); }, { passive: true });
-  main.addEventListener('touchend', () => { manualScrollTimeout = setTimeout(() => { autoScroll = true; }, 2000); }, { passive: true });
-
-  function submitDelete() {
-    if (deleteForm) deleteForm.submit();
-  }
-  window.submitDelete = submitDelete;
-</script>
+  </script>
 
 </body>
 </html>
