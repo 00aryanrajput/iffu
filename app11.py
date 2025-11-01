@@ -68,7 +68,7 @@ def upload():
     if 'username' not in session:
         return redirect(url_for('login'))
 
-    text_content = request.form.get('text_content', '')
+    text_content = request.form.get('feelingText', '')
     file = request.files.get('file')
 
     if not file:
